@@ -1,1 +1,281 @@
- app is test
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galactic Game Store</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom Keyframe Animation for the floating effect */
+        @keyframes floating {
+            0% { transform: translateY(0px) rotate(0deg); box-shadow: 0 5px 15px rgba(132, 204, 22, 0.4); }
+            50% { transform: translateY(-10px) rotate(0.5deg); box-shadow: 0 10px 20px rgba(132, 204, 22, 0.7); }
+            100% { transform: translateY(0px) rotate(0deg); box-shadow: 0 5px 15px rgba(132, 204, 22, 0.4); }
+        }
+
+        .float-card {
+            animation: floating 5s infinite ease-in-out;
+            transition: transform 0.3s;
+        }
+
+        .float-card:hover {
+            transform: scale(1.03) translateY(-15px) !important;
+            animation-play-state: paused;
+        }
+
+        .cosmic-gradient {
+            /* Deep, dark gradient for a space/game aesthetic */
+            background: radial-gradient(at 0% 0%, #1e1b4b, #0c0a09), linear-gradient(135deg, #1f2937, #0f172a);
+        }
+
+        /* Set Inter font globally */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="cosmic-gradient min-h-screen text-gray-100 p-4 sm:p-8">
+
+    <header class="text-center mb-12">
+        <h1 class="text-5xl sm:text-7xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-green-300 via-lime-400 to-emerald-500">
+            Game Nexus
+        </h1>
+        <p class="mt-2 text-xl font-light text-green-200">The gateway to infinite gaming universes.</p>
+    </header>
+
+    <!-- Product Grid Container -->
+    <main id="game-grid" class="container mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <!-- Game Cards will be injected here by JavaScript -->
+    </main>
+
+    <!-- Modal for Shopping Details -->
+    <div id="modal-backdrop" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center p-4 z-50 transition-opacity duration-300">
+        <div id="modal-content" class="bg-gray-900 rounded-xl shadow-2xl w-full max-w-4xl transform transition-all duration-500 scale-95 opacity-0">
+            <div class="p-6 sm:p-10 relative">
+                <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition duration-200 p-2 rounded-full bg-gray-800 hover:bg-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Image Area -->
+                    <div class="relative rounded-lg overflow-hidden border border-lime-500/50 shadow-lg">
+                        <img id="modal-image" src="" alt="Game Image" class="w-full h-auto object-cover transition-transform duration-500 hover:scale-105" onerror="this.onerror=null;this.src='https://placehold.co/600x400/1e293b/f1f5f9?text=Image+Unavailable';" />
+                        <div class="absolute inset-0 bg-black opacity-30"></div>
+                    </div>
+
+                    <!-- Details Area -->
+                    <div>
+                        <h2 id="modal-name" class="text-4xl font-extrabold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-lime-300 to-green-400"></h2>
+                        <p id="modal-genre" class="text-lg font-medium text-green-300 mb-4"></p>
+
+                        <div class="space-y-4 mb-6">
+                            <div class="flex items-center justify-between border-b border-gray-700 pb-2">
+                                <span class="text-gray-400 font-semibold">Price:</span>
+                                <span id="modal-price" class="text-3xl font-bold text-white"></span>
+                            </div>
+                            <div class="flex items-center justify-between border-b border-gray-700 pb-2">
+                                <span class="text-gray-400 font-semibold">Rating:</span>
+                                <span id="modal-rating" class="text-xl font-bold text-yellow-400"></span>
+                            </div>
+                            <div class="border-b border-gray-700 pb-2">
+                                <h4 class="text-gray-300 font-semibold mb-2">Description:</h4>
+                                <p id="modal-description" class="text-gray-400 leading-relaxed text-sm">Experience the thrill of interstellar combat and diplomacy in a fully open universe. Command your fleet, explore strange new worlds, and shape the destiny of the galaxy.</p>
+                            </div>
+                        </div>
+
+                        <!-- Action Button -->
+                        <button onclick="showMessage('Added to Cart!')" class="w-full py-3 mt-6 text-lg font-bold rounded-xl text-gray-900 transition-all duration-300 transform hover:scale-[1.02] active:scale-95 shadow-lg bg-gradient-to-r from-lime-400 to-green-500 hover:from-lime-300 hover:to-green-400">
+                            Pre-Order Now
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Message Box (replacing alert()) -->
+    <div id="message-box" class="fixed bottom-5 right-5 p-4 rounded-lg text-white font-semibold transform translate-x-full transition-transform duration-500 ease-out z-50" style="background-color: #16a34a;">
+        <!-- Message content goes here -->
+    </div>
+
+
+    <script>
+        // Mock data for the game shop
+        const mockGames = [
+            {
+                id: 1,
+                name: "Galactic Frontier",
+                price: 59.99,
+                genre: "Sci-Fi RPG",
+                image: "https://placehold.co/600x400/1e293b/f1f5f9?text=GALACTIC+FRONTIER",
+                rating: 4.8,
+                description: "Experience the thrill of interstellar combat and diplomacy in a fully open universe. Command your fleet, explore strange new worlds, and shape the destiny of the galaxy. Features thousands of star systems and complex trade mechanics."
+            },
+            {
+                id: 2,
+                name: "Pixel Quest",
+                price: 19.99,
+                genre: "Indie Platformer",
+                image: "https://placehold.co/600x400/22c55e/f0f9ff?text=PIXEL+QUEST",
+                rating: 4.5,
+                description: "A charming retro-style platformer with challenging levels and a heartwarming story. Jump, dash, and solve puzzles across six unique biomes. Perfect for casual and hardcore players alike."
+            },
+            {
+                id: 3,
+                name: "Neon Racer",
+                price: 39.99,
+                genre: "Arcade Racing",
+                image: "https://placehold.co/600x400/c026d3/f0f9ff?text=NEON+RACER",
+                rating: 4.9,
+                description: "Ignite the streets in this high-speed, neon-drenched arcade racer. Customize your vehicle and drift through futuristic cityscapes. Supports 4K visuals and a pumping synthwave soundtrack."
+            },
+            {
+                id: 4,
+                name: "Viking Saga",
+                price: 49.99,
+                genre: "Action Adventure",
+                image: "https://placehold.co/600x400/4f46e5/f0f9ff?text=VIKING+SAGA",
+                rating: 4.7,
+                description: "Pillage, raid, and conquer in the frozen north. An epic adventure game where every decision affects your clan's destiny. Master brutal combat and build your settlement."
+            },
+            {
+                id: 5,
+                name: "Deep Dive",
+                price: 29.99,
+                genre: "Survival Horror",
+                image: "https://placehold.co/600x400/0f172a/f0f9ff?text=DEEP+DIVE",
+                rating: 4.6,
+                description: "Explore the crushing depths of the abyss where light struggles to reach. Manage your oxygen and face terrifying, unseen creatures in this intense survival experience."
+            },
+            {
+                id: 6,
+                name: "Aetheria",
+                price: 69.99,
+                genre: "Fantasy MMO",
+                image: "https://placehold.co/600x400/fbbf24/1f2937?text=AETHERIA",
+                rating: 5.0,
+                description: "Enter the magical world of Aetheria. Join massive battles, craft legendary items, and explore a breathtaking land of floating islands and ancient ruins."
+            },
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderGameCards();
+        });
+
+        // Function to render the game cards onto the grid
+        function renderGameCards() {
+            const grid = document.getElementById('game-grid');
+            grid.innerHTML = ''; // Clear existing content
+
+            mockGames.forEach((game, index) => {
+                // Introduce a slight animation delay based on index for staggered floating effect
+                const delay = (index * 0.2) + 0.5;
+
+                const cardHtml = `
+                    <div
+                        class="float-card bg-gray-900/70 backdrop-blur-sm rounded-xl overflow-hidden cursor-pointer hover:bg-gray-800/80 transition duration-300 relative border border-gray-700 hover:border-lime-500/80 shadow-lg"
+                        style="animation-delay: ${delay}s;"
+                        onclick="showDetails(${game.id})"
+                    >
+                        <!-- Image Container -->
+                        <div class="h-48 overflow-hidden">
+                            <img src="${game.image}" alt="${game.name} cover"
+                                 class="w-full h-full object-cover transform transition-transform duration-500 hover:scale-[1.05]"
+                                 onerror="this.onerror=null;this.src='https://placehold.co/600x400/1e293b/f1f5f9?text=Image+Unavailable';"
+                            />
+                        </div>
+
+                        <!-- Details -->
+                        <div class="p-5 text-center">
+                            <h3 class="text-xl font-bold mb-1 text-white">${game.name}</h3>
+                            <p class="text-sm font-medium text-green-400 mb-3">${game.genre}</p>
+                            <div class="flex justify-between items-center mt-4">
+                                <span class="text-2xl font-extrabold text-lime-400">$${game.price.toFixed(2)}</span>
+                                <span class="text-yellow-400 flex items-center">
+                                    <svg class="w-5 h-5 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M9.049 2.927c.3-.921 1.62-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.17c.969 0 1.371 1.24.588 1.83l-3.373 2.454a1 1 0 00-.362 1.118l1.286 3.967c.3.921-.755 1.688-1.538 1.118l-3.373-2.454a1 1 0 00-1.176 0l-3.373 2.454c-.783.57-1.838-.197-1.538-1.118l1.286-3.967a1 1 0 00-.362-1.118L2.094 9.414c-.783-.59-.381-1.83.588-1.83h4.17a1 1 0 00.95-.69l1.286-3.967z"></path></svg>
+                                    ${game.rating.toFixed(1)}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        // Function to show the modal with selected game details
+        function showDetails(gameId) {
+            const game = mockGames.find(g => g.id === gameId);
+            if (!game) return;
+
+            // Update Modal Content
+            document.getElementById('modal-name').textContent = game.name;
+            document.getElementById('modal-genre').textContent = game.genre;
+            document.getElementById('modal-price').textContent = `$${game.price.toFixed(2)}`;
+            document.getElementById('modal-rating').textContent = `${game.rating.toFixed(1)} / 5.0`;
+            document.getElementById('modal-description').textContent = game.description;
+
+            const modalImage = document.getElementById('modal-image');
+            modalImage.src = game.image;
+            modalImage.alt = `${game.name} Promotional Image`;
+
+            // Display Modal
+            const backdrop = document.getElementById('modal-backdrop');
+            const content = document.getElementById('modal-content');
+
+            backdrop.classList.remove('hidden');
+            backdrop.classList.add('flex');
+
+            // Timeout to apply transition after display is set
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        // Function to close the modal
+        function closeModal() {
+            const backdrop = document.getElementById('modal-backdrop');
+            const content = document.getElementById('modal-content');
+
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            backdrop.classList.add('opacity-0');
+
+            // Wait for transition to finish before hiding
+            setTimeout(() => {
+                backdrop.classList.remove('flex');
+                backdrop.classList.add('hidden');
+            }, 300);
+        }
+
+        // Function to show a custom message box instead of alert()
+        function showMessage(text) {
+            const msgBox = document.getElementById('message-box');
+            msgBox.textContent = text;
+            msgBox.style.backgroundColor = '#16a34a'; // Green background
+
+            // Show message (slide in from right)
+            msgBox.classList.remove('translate-x-full');
+
+            // Hide message after 3 seconds (slide back)
+            setTimeout(() => {
+                msgBox.classList.add('translate-x-full');
+            }, 3000);
+        }
+
+        // Close modal when clicking outside the content
+        document.getElementById('modal-backdrop').addEventListener('click', (event) => {
+            if (event.target.id === 'modal-backdrop') {
+                closeModal();
+            }
+        });
+
+    </script>
+
+</body>
+</html>
