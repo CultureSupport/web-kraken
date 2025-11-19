@@ -130,13 +130,14 @@
 
     // --- Mock Data ---
     const MOCK_GITHUB_DATA = {
-        username: "coder-dev-presenter",
+        username: "Ole Olessiall",
         status: "Online",
-        avatar_url: "https://placehold.co/80x80/1e1e1e/f7b731?text=CD",
+        avatar_url: "https://placehold.co/80x80/1e1e1e/f7b731?text=OO",
         badges: [
-            { name: "Top Contributor", value: "2024", color: "text-red-400" },
-            { name: "Open Source Master", value: "Level 10", color: "text-blue-400" },
-            { name: "JS Specialist", value: "Expert", color: "text-yellow-400" }
+            { name: "GitHub Architect", value: "Expert", color: "text-white" },
+            { name: "Python Specialist", value: "40+ Projects", color: "text-yellow-400" },
+            { name: "JS/TS Dev", value: "Senior", color: "text-blue-400" },
+            { name: "CLI Builder", value: "Pro", color: "text-red-400" }
         ],
         repo_data: [
             { name: "Portfolio-CLI", desc: "The source code for this terminal interface.", lang: "HTML/JS", stars: 42, url: "#" },
@@ -247,7 +248,6 @@
         const badgeHTML = MOCK_GITHUB_DATA.badges.map(badge => `
             <div class="flex items-center text-sm">
                 <span class="badge-icon text-lg">&diams;</span>
-                <span class="${badge.color} font-bold ml-1">${badge.icon}</span>
                 <span class="terminal-secondary">${badge.name}:</span>
                 <span class="${badge.color} font-bold ml-1">${badge.value}</span>
             </div>
