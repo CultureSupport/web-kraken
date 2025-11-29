@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Chord Looper Synth</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tone.js CDN for Web Audio -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        /* Custom styling for a dark, music-themed look */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* Dark Slate Gray */
+            color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .card-shadow {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+        }
+        .key-button {
+            transition: all 0.07s ease;
+            box-shadow: 0 4px 0 0 rgba(0,0,0,0.5);
+            line-height: 1.1; /* Adjust line height for chord names */
+        }
+        .key-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 0 rgba(0,0,0,0.5);
+        }
+        .key-active {
+            background-color: #f97316 !important; /* Orange-500 for Chord Active */
+            color: white !important;
+            border-color: #f97316 !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container" class="w-full max-w-4xl bg-gray-800 p-8 rounded-xl card-shadow border border-gray-700">
+        <header class="mb-8 border-b border-gray-700 pb-4">
+            <h1 class="text-4xl font-extrabold text-white">Random Chord Looper</h1>
+            <p class="text-gray-400 mt-2">Record and loop chords. The synth sound randomizes every time you start.</p>
+        </header>
+
+        <!-- Status and Controls Section -->
+        <div class="grid md:grid-cols-4 gap-4 mb-8">
+
+            <!-- Loop Status Indicator -->
+            <div class="bg-gray-700 p-4 rounded-lg flex flex-col justify-center items-center col-span-2 md:col-span-1">
+                <span id="loop-status" class="text-sm font-semibold uppercase text-yellow-400">Ready</span>
+                <p class="text-xs text-gray-400 mt-1">System State</p>
+            </div>
+
+            <!-- Instrument Display -->
+            <div class="bg-gray-700 p-4 rounded-lg flex flex-col justify-center items-center col-span-2 md:col-span-1">
+                <span id="instrument-display" class="text-xl font-mono text-pink-400 truncate w-full text-center">Loading...</span>
+                <p class="text-xs text-gray-400 mt-1">Current Synth</p>
+            </div>
+
+            <!-- Tempo Display -->
+            <div class="bg-gray-700 p-4 rounded-lg flex flex-col justify-center items-center col-span-2 md:col-span-1">
+                <span id="tempo-display" class="text-xl font-mono text-green-400">120 BPM</span>
+                <p class="text-xs text-gray-400 mt-1">Loop Tempo</p>
+            </div>
+
+            <!-- Note Count Display -->
+            <div class="bg-gray-700 p-4 rounded-lg flex flex-col justify-center items-center col-span-2 md:col-span-1">
+                <span id="note-count" class="text-xl font-mono text-blue-400">0 Chords</span>
+                <p class="text-xs text-gray-400 mt-1">Recorded Chords</p>
+            </div>
+        </div>
+
+        <!-- Main Control Buttons -->
+        <div class="flex flex-wrap gap-4 mb-8 justify-center">
+            <button id="start-button" class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg transition duration-150 shadow-lg shadow-green-500/50" disabled>
+                <i class="fas fa-play mr-2"></i> Start/Play Loop
+            </button>
+            <button id="record-button" class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition duration-150 shadow-lg shadow-red-500/50" disabled>
+                <i class="fas fa-dot-circle mr-2"></i> Record New Loop
+            </button>
+            <button id="stop-button" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-bold rounded-lg transition duration-150 shadow-lg shadow-gray-500/50" disabled>
+                <i class="fas fa-stop mr-2"></i> Stop All
+            </button>
+        </div>
+
+        <!-- Keyboard Visualizer/Instructions -->
+        <div class="bg-gray-700 p-6 rounded-xl border border-gray-600">
+            <h3 class="text-lg font-semibold mb-3 text-white text-center">Chord Pad (Diatonic C Major)</h3>
+            <div id="keyboard-pad" class="flex justify-center space-x-2 md:space-x-4">
+                <!-- Keys with Chord Names -->
+                <div id="key-A" class="key-button w-12 h-16 md:w-16 md:h-20 bg-gray-900 border-b-4 border-gray-600 rounded flex flex-col items-center justify-center p-1 text-xs md:text-sm font-bold">C Maj<br><span class="text-gray-400">A</span></div>
+                <div id="key-S" class="key-button w-12 h-16 md:w-16 md:h-20 bg-gray-900 border-b-4 border-gray-600 rounded flex flex-col items-center justify-center p-1 text-xs md:text-sm font-bold">D min<br><span class="text-gray-400">S</span></div>
+                <div id="key-D" class="key-button w-12 h-16 md:w-16 md:h-20 bg-gray-900 border-b-4 border-gray-600 rounded flex flex-col items-center justify-center p-1 text-xs md:text-sm font-bold">E min<br><span class="text-gray-400">D</span></div>
+                <div id="key-F" class="key-button w-12 h-16 md:w-16 md:h-20 bg-gray-900 border-b-4 border-gray-600 rounded flex flex-col items-center justify-center p-1 text-xs md:text-sm font-bold">F Maj<br><span class="text-gray-400">F</span></div>
+                <div id="key-G" class="key-button w-12 h-16 md:w-16 md:h-20 bg-gray-900 border-b-4 border-gray-600 rounded flex flex-col items-center justify-center p-1 text-xs md:text-sm font-bold">G Maj<br><span class="text-gray-400">G</span></div>
+                <div id="key-H" class="key-button w-12 h-16 md:w-16 md:h-20 bg-gray-900 border-b-4 border-gray-600 rounded flex flex-col items-center justify-center p-1 text-xs md:text-sm font-bold">A min<br><span class="text-gray-400">H</span></div>
+                <div id="key-J" class="key-button w-12 h-16 md:w-16 md:h-20 bg-gray-900 border-b-4 border-gray-600 rounded flex flex-col items-center justify-center p-1 text-xs md:text-sm font-bold">B dim<br><span class="text-gray-400">J</span></div>
+                <div id="key-K" class="key-button w-12 h-16 md:w-16 md:h-20 bg-gray-900 border-b-4 border-gray-600 rounded flex flex-col items-center justify-center p-1 text-xs md:text-sm font-bold">G Dom7<br><span class="text-gray-400">K</span></div>
+            </div>
+            <p class="text-sm text-gray-300 mt-4 text-center">Click or press keys A-K to play chords. Press the 'Record' button to capture your loop.</p>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Tone.js & Looper Logic ---
+
+        // 1. Setup global state and components
+        let synth = null;
+        let recordedNotes = []; // Stores chord arrays
+        let isRecording = false;
+        let looperSequence = null;
+        const loopLength = '4m'; // 4 measures is the default loop length
+
+        // 8 common chords in C Major (C4 Octave)
+        const chordDefinitions = {
+            'a': { chord: ['C4', 'E4', 'G4'], label: 'C Maj', elementId: 'key-A' },
+            's': { chord: ['D4', 'F4', 'A4'], label: 'D min', elementId: 'key-S' },
+            'd': { chord: ['E4', 'G4', 'B4'], label: 'E min', elementId: 'key-D' },
+            'f': { chord: ['F4', 'A4', 'C5'], label: 'F Maj', elementId: 'key-F' },
+            'g': { chord: ['G4', 'B4', 'D5'], label: 'G Maj', elementId: 'key-G' },
+            'h': { chord: ['A4', 'C5', 'E5'], label: 'A min', elementId: 'key-H' },
+            'j': { chord: ['B4', 'D5', 'F5'], label: 'B dim', elementId: 'key-J' },
+            'k': { chord: ['G4', 'B4', 'D5', 'F5'], label: 'G Dom7', elementId: 'key-K' }
+        };
+
+        // 2. UI Elements
+        const statusEl = document.getElementById('loop-status');
+        const countEl = document.getElementById('note-count');
+        const instrumentEl = document.getElementById('instrument-display');
+        const recordBtn = document.getElementById('record-button');
+        const startBtn = document.getElementById('start-button');
+        const stopBtn = document.getElementById('stop-button');
+
+        // Function to update the UI status display
+        const updateStatus = (status, color) => {
+            Tone.Draw.schedule(() => {
+                statusEl.textContent = status;
+                statusEl.className = `text-sm font-semibold uppercase ${color}`;
+            }, Tone.now());
+        };
+
+        const updateNoteCount = (count) => {
+            Tone.Draw.schedule(() => {
+                countEl.textContent = `${count} Chords`;
+            }, Tone.now());
+        };
+
+        const toggleControls = (enable) => {
+            startBtn.disabled = !enable;
+            recordBtn.disabled = !enable;
+            stopBtn.disabled = !enable;
+        };
+
+        // 3. Random Synth Generation (Core Feature)
+        const createRandomSynth = () => {
+            // Dispose of the old synth if it exists
+            if (synth) synth.dispose();
+
+            // Define several interesting synth types
+            const synths = [
+                {
+                    name: 'Plucked Strings (Sampler)',
+                    create: () => new Tone.PolySynth(Tone.Sampler, {
+                        urls: { "C4": "https://tonejs.github.io/examples/audio/salamander/C4.mp3" },
+                        attack: 0.02, release: 0.5
+                    }).toDestination(),
+                    // Sampler requires an active connection, so we'll use a safer set of synths
+                    // For simplicity in a single file, let's stick to built-in synths
+                },
+                {
+                    name: 'Wobbly Pad (AMSynth)',
+                    create: () => new Tone.PolySynth(Tone.AMSynth, {
+                        harmonicity: 1.5,
+                        oscillator: { type: 'sine' },
+                        envelope: { attack: 1, decay: 0.5, sustain: 0.5, release: 2 }
+                    }).toDestination()
+                },
+                {
+                    name: 'FM Bell (FMSynth)',
+                    create: () => new Tone.PolySynth(Tone.FMSynth, {
+                        modulationIndex: 12,
+                        envelope: { attack: 0.01, decay: 0.5, sustain: 0.1, release: 1 },
+                        modulation: { type: 'triangle' },
+                        carrier: { type: 'sine' }
+                    }).toDestination()
+                },
+                {
+                    name: 'Pulse Bass (Synth)',
+                    create: () => new Tone.PolySynth(Tone.Synth, {
+                        oscillator: { type: 'pulse', width: 0.4 },
+                        envelope: { attack: 0.01, decay: 0.2, sustain: 0.8, release: 0.5 }
+                    }).toDestination()
+                },
+                {
+                    name: 'Organ Drone (DuoSynth)',
+                    create: () => new Tone.DuoSynth({
+                        vibratoAmount: 0.5,
+                        vibratoRate: 5,
+                        voice0: {
+                            volume: -10,
+                            portamento: 0,
+                            oscillator: { type: 'sine' },
+                            envelope: { attack: 0.01, decay: 0.5, sustain: 0.4, release: 0.8 }
+                        },
+                        voice1: {
+                            volume: -10,
+                            portamento: 0,
+                            oscillator: { type: 'sine' },
+                            envelope: { attack: 0.01, decay: 0.5, sustain: 0.4, release: 0.8 }
+                        }
+                    }).toDestination().connect(new Tone.Chorus(4, 2.5, 0.5).toDestination()) // Added Chorus Effect
+                }
+            ];
+
+            const randomChoice = synths[Math.floor(Math.random() * synths.length)];
+            synth = randomChoice.create();
+            instrumentEl.textContent = randomChoice.name;
+        };
+
+        // 4. Audio Initialization
+        const initializeAudio = async () => {
+            if (Tone.context.state !== 'running') {
+                updateStatus('Starting Audio...', 'text-white');
+                await Tone.start();
+                updateStatus('Ready', 'text-yellow-400');
+            }
+
+            // Create a new random synth on initialization
+            createRandomSynth();
+
+            // Setup Tone Transport
+            Tone.Transport.bpm.value = 120;
+            Tone.Transport.loop = true;
+            Tone.Transport.loopEnd = loopLength;
+            document.getElementById('tempo-display').textContent = `${Tone.Transport.bpm.value} BPM`;
+
+            toggleControls(true); // Enable buttons once audio is ready
+        };
+
+        // 5. Looping Control
+        const createLooper = () => {
+            // Clear any existing sequence
+            if (looperSequence) {
+                looperSequence.stop();
+                looperSequence.dispose();
+            }
+
+            // Create a new sequence from the recorded notes (chords)
+            looperSequence = new Tone.Sequence((time, chordEvent) => {
+                // Play the chord (array of notes) with its duration
+                synth.triggerAttackRelease(chordEvent.chord, chordEvent.duration, time);
+            }, recordedNotes, 0.5).start(0);
+        };
+
+        // 6. Recording Functions
+        const startRecording = () => {
+            // Stop any ongoing playback
+            if (looperSequence) {
+                looperSequence.stop();
+                looperSequence.dispose();
+                looperSequence = null;
+            }
+
+            // Clear recorded notes
+            recordedNotes = [];
+            updateNoteCount(0);
+
+            // Re-randomize the synth sound for the new recording
+            createRandomSynth();
+
+            isRecording = true;
+            Tone.Transport.stop();
+            Tone.Transport.seconds = 0; // Reset transport position
+            Tone.Transport.start();
+
+            recordBtn.classList.remove('bg-red-600', 'hover:bg-red-700');
+            recordBtn.classList.add('bg-gray-400', 'animate-pulse');
+            updateStatus('Recording...', 'text-red-500');
+        };
+
+        const stopRecording = () => {
+            isRecording = false;
+            Tone.Transport.stop();
+
+            // Restore button appearance
+            recordBtn.classList.remove('bg-gray-400', 'animate-pulse');
+            recordBtn.classList.add('bg-red-600', 'hover:bg-red-700');
+
+            if (recordedNotes.length > 0) {
+                // Sort notes by time for correct playback
+                recordedNotes.sort((a, b) => a.time - b.time);
+                updateStatus(`Recorded ${recordedNotes.length} Chords`, 'text-blue-400');
+                updateNoteCount(recordedNotes.length);
+            } else {
+                updateStatus('Recording Failed. No chords captured.', 'text-yellow-400');
+            }
+        };
+
+        // 7. Chord Playback and Recording Logic
+        const playChord = (key) => {
+            if (!synth) initializeAudio(); // Initialize on first key press if not done already
+
+            const { chord, elementId } = chordDefinitions[key];
+
+            // 7a. Visual feedback
+            const keyEl = document.getElementById(elementId);
+            if (keyEl && !keyEl.classList.contains('key-active')) {
+                keyEl.classList.add('key-active');
+                setTimeout(() => keyEl.classList.remove('key-active'), 100);
+            }
+
+            // 7b. Trigger audio
+            synth.triggerAttackRelease(chord, '8n');
+
+            // 7c. Record note if recording is active
+            if (isRecording) {
+                const time = Tone.Transport.seconds;
+                recordedNotes.push({
+                    time: time,
+                    chord: chord,
+                    duration: '8n' // Fixed duration for simplicity
+                });
+                updateNoteCount(recordedNotes.length);
+            }
+        };
+
+        // 8. Event Listeners
+        const setupListeners = () => {
+            // Global key press listener
+            document.addEventListener('keydown', (e) => {
+                const key = e.key.toLowerCase();
+                if (chordDefinitions[key] && !e.repeat) {
+                    e.preventDefault(); // Prevent accidental scrolling
+                    playChord(key);
+                }
+            });
+
+            // Click listeners for the virtual keyboard
+            document.getElementById('keyboard-pad').addEventListener('click', (e) => {
+                const keyId = e.target.closest('.key-button')?.id;
+                if (keyId) {
+                    const keyChar = keyId.replace('key-', '').toLowerCase();
+                    if (chordDefinitions[keyChar]) {
+                        playChord(keyChar);
+                    }
+                }
+            });
+
+
+            // Start/Play Button
+            startBtn.addEventListener('click', () => {
+                if (recordedNotes.length === 0) {
+                    updateStatus('Error: No chords recorded to play!', 'text-red-600');
+                    return;
+                }
+                // Stop any ongoing recording
+                if (isRecording) stopRecording();
+
+                // Create looper if it doesn't exist (or was disposed)
+                createLooper();
+
+                // Start transport only if it's not already running
+                if (Tone.Transport.state !== 'started') {
+                    Tone.Transport.start();
+                    updateStatus('Playing Loop', 'text-green-500');
+                }
+            });
+
+            // Record Button
+            recordBtn.addEventListener('click', () => {
+                if (isRecording) {
+                    stopRecording();
+                } else {
+                    startRecording();
+                }
+            });
+
+            // Stop Button
+            stopBtn.addEventListener('click', () => {
+                if (looperSequence) looperSequence.stop();
+                if (isRecording) stopRecording();
+                Tone.Transport.stop();
+                updateStatus('Stopped', 'text-gray-400');
+                // Create a new random synth when stopping to prepare for the next run
+                createRandomSynth();
+            });
+
+            // Initialize audio and synth on the first interaction (required by modern browsers)
+            // We use a general click listener to ensure initialization happens when the user interacts.
+            document.addEventListener('click', initializeAudio, { once: true });
+        };
+
+        // Initialize the app when the window loads
+        window.onload = setupListeners;
+
+    </script>
+</body>
+</html>
