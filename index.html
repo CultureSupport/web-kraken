@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anonymous Command Center (Simulated)</title>
+    <!-- Bulma CSS from CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #00ff7f; /* Neon Green */
+            --secondary-color: #00b3ff; /* Neon Blue */
+            --bg-color: #1a1a1a;
+            --card-bg: #222222;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--primary-color);
+            font-family: 'Space Mono', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .container.is-fluid {
+            padding: 1rem 0.5rem;
+            flex-grow: 1;
+        }
+
+        .box {
+            background-color: var(--card-bg);
+            border: 1px solid rgba(0, 255, 127, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 127, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .title, .subtitle {
+            color: var(--primary-color);
+            text-shadow: 0 0 5px rgba(0, 255, 127, 0.6);
+            border-bottom: 2px solid rgba(0, 255, 127, 0.3);
+            padding-bottom: 0.5rem;
+        }
+
+        .log-area, .chat-area, .console-area {
+            height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            padding: 10px;
+            border: 1px dashed var(--secondary-color);
+            background-color: rgba(0, 0, 0, 0.4);
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .log-area pre {
+            background: none;
+            color: var(--primary-color);
+            padding: 0;
+        }
+
+        .console-output span {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .blink-cursor {
+            animation: blink-caret .75s step-end infinite;
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--secondary-color); }
+        }
+
+        /* Status Colors */
+        .status-ok { color: var(--primary-color); }
+        .status-warning { color: #ffd700; } /* Gold */
+        .status-critical { color: #ff3333; } /* Red */
+        .status-info { color: var(--secondary-color); }
+
+        .tag.is-dark {
+            background-color: rgba(0, 255, 127, 0.1);
+            color: var(--primary-color);
+        }
+
+        /* Custom Map Placeholder for Stylistic Effect */
+        .map-placeholder {
+            height: 300px;
+            background: linear-gradient(45deg, #111 25%, #222 25%, #222 50%, #111 50%, #111 75%, #222 75%, #222);
+            background-size: 20px 20px;
+            border: 2px solid var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+        .map-placeholder::before {
+            content: "GLOBAL NETWORK VISUALIZATION - SECURE CONNECTION";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(0, 255, 127, 0.5);
+            animation: pulse 2s infinite alternate;
+        }
+        @keyframes pulse {
+            from { opacity: 0.5; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<section class="section is-paddingless pt-4 pb-4">
+    <div class="container is-fluid">
+        <h1 class="title is-4 has-text-centered mb-2">
+            [A]NON-HQ :: Global Security Command Center
+        </h1>
+        <p class="subtitle is-6 has-text-centered mb-5 status-info">
+            INITIATING DEFENSE PROTOCOL (D_256) - SYSTEM NOMINAL
+        </p>
+
+        <div class="columns is-multiline">
+            <!-- COLUMN 1: System Status & Chat -->
+            <div class="column is-full-mobile is-one-third-desktop">
+                <div class="box mb-4">
+                    <p class="title is-5 mb-3">Live System Status</p>
+                    <div class="is-size-7">
+                        <div class="mb-2">
+                            <span class="tag is-dark is-pulled-right" id="cpu-load">12.3%</span>
+                            CPU Load: <span class="status-ok">Optimal</span>
+                        </div>
+                        <div class="mb-2">
+                            <span class="tag is-dark is-pulled-right" id="mem-usage">789ms</span>
+                            Ping Latency: <span class="status-warning">High Risk</span>
+                        </div>
+                        <div class="mb-2">
+                            <span class="tag is-dark is-pulled-right" id="firewall-status">Active</span>
+                            Firewall Health: <span class="status-ok">Online</span>
+                        </div>
+                        <div class="mb-2">
+                            <span class="tag is-dark is-pulled-right" id="intrusion-count">0</span>
+                            Intrusion Attempts: <span class="status-ok">Zero</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <p class="title is-5 mb-3">A-HQ Secure Chat (Defense)</p>
+                    <div class="chat-area is-size-7" id="chat-logs">
+                        <!-- Chat logs will be inserted here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUMN 2: Network Visualization & Console -->
+            <div class="column is-full-mobile is-two-thirds-desktop">
+                <div class="box mb-4">
+                    <p class="title is-5 mb-3">Network Visualization</p>
+                    <div class="map-placeholder">
+                        <!-- Abstract/Placeholder for Map/Webcam -->
+                    </div>
+                </div>
+
+                <div class="box">
+                    <p class="title is-5 mb-3">Console Input/Output</p>
+                    <div class="console-area console-output" id="console-output">
+                        <span class="status-info">> Connecting to central network hub... <span class="blink-cursor">|</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUMN 3: Real-Time Event Logs (Full Width Mobile/Tablet) -->
+            <div class="column is-full">
+                <div class="box">
+                    <p class="title is-5 mb-3">Real-Time Defensive Event Stream (JSON)</p>
+                    <div class="log-area" id="realtime-logs">
+                        <!-- JSON logs will be inserted here -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<script>
+    // --- Data Configuration ---
+
+    const CONSOLE_SCRIPT = [
+        "INITIATE DEFENSE PROTOCOL D_256...",
+        "STATUS: FIREWALL HEALTH CHECK OK",
+        "EXEC: ANALYZE INCOMING TRAFFIC FLOW",
+        "RESULT: ANOMALOUS PACKET DETECTED FROM IP: 192.168.1.5 (INTERNAL)",
+        "EXEC: ISOLATE_NODE 192.168.1.5",
+        "STATUS: NODE ISOLATED. THREAT NEUTRALIZED.",
+        "EXEC: SCAN FOR VULNERABILITIES (INTERNAL NETWORK)",
+        "RESULT: 3 LOW-PRIORITY WARNINGS. PATCHING SCHEDULED.",
+        "EXEC: DECRYPT ENCRYPTED PACKETS (SIMULATION)",
+        "LOG: SESSION 1 ENDED. AWAITING NEW COMMANDS."
+    ];
+
+    const CHAT_PROMPTS = [
+        { user: "Operator-01", msg: "Traffic analysis reports nominal flow. No external threats detected." },
+        { user: "Sentinel-9", msg: "Confirmed node isolation. The internal anomaly is contained." },
+        { user: "Ghost_W", msg: "Requesting internal vulnerability scan status update, over." },
+        { user: "Operator-01", msg: "Low priority warnings only, Ghost_W. Patch schedule in effect." },
+        { user: "WatchTower", msg: "Remember to scrub logs D_255. Stay vigilant, team." }
+    ];
+
+    // --- Utility Functions ---
+
+    /**
+     * Generates a random JSON log simulating a security event.
+     * @returns {string} JSON string
+     */
+    function generateRandomEvent() {
+        const statuses = ["OK", "WARNING", "CRITICAL", "INFO"];
+        const actions = ["FIREWALL_UPDATE", "TRAFFIC_ALERT", "NODE_ISOLATION", "PATCH_APPLIED", "CONFIG_CHANGE"];
+        const ips = ["10.0.0." + Math.floor(Math.random() * 255), "172.16." + Math.floor(Math.random() * 255) + "." + Math.floor(Math.random() * 255), "192.168.1." + Math.floor(Math.random() * 255)];
+
+        const status = statuses[Math.floor(Math.random() * statuses.length)];
+        const action = actions[Math.floor(Math.random() * actions.length)];
+        const timestamp = new Date().toISOString();
+
+        const log = {
+            timestamp: timestamp,
+            level: status,
+            source_ip: ips[Math.floor(Math.random() * ips.length)],
+            event_action: action,
+            description: `[${action}]: Status update for network sector Alpha-${Math.floor(Math.random() * 10)}`,
+            severity_score: status === "CRITICAL" ? Math.floor(Math.random() * 100) + 70 : Math.floor(Math.random() * 70),
+            details: {
+                protocol: Math.random() > 0.5 ? 'TCP' : 'UDP',
+                port: Math.floor(Math.random() * (65535 - 1024 + 1)) + 1024
+            }
+        };
+
+        let colorClass = 'status-info';
+        if (status === 'WARNING') colorClass = 'status-warning';
+        if (status === 'CRITICAL') colorClass = 'status-critical';
+        if (status === 'OK') colorClass = 'status-ok';
+
+        // Add indentation and syntax highlighting look
+        let jsonText = JSON.stringify(log, null, 2);
+        jsonText = jsonText.replace(/"(.*?)"\:/g, (match, p1) => `<span style="color: #ff88ff;">"${p1}"</span>:`);
+        jsonText = jsonText.replace(/:\s*"(.*?)"/g, (match, p1) => `: <span class="${colorClass}">"${p1}"</span>`);
+        jsonText = jsonText.replace(/:\s*(\d+(\.\d+)?)/g, (match, p1) => `: <span style="color: #66ccff;">${p1}</span>`);
+
+        return `<pre class="${colorClass}">${jsonText}</pre>`;
+    }
+
+    /**
+     * Appends a new event log to the real-time log area.
+     */
+    function updateRealtimeLogs() {
+        const logArea = document.getElementById('realtime-logs');
+        const newLog = generateRandomEvent();
+        logArea.innerHTML = newLog + logArea.innerHTML;
+
+        // Keep log area from growing too large (e.g., max 10 logs visible)
+        if (logArea.children.length > 10) {
+            logArea.removeChild(logArea.lastChild);
+        }
+    }
+
+    /**
+     * Adds a random chat message to the chat area.
+     */
+    function updateChatLogs() {
+        const chatArea = document.getElementById('chat-logs');
+        const randomMessage = CHAT_PROMPTS[Math.floor(Math.random() * CHAT_PROMPTS.length)];
+
+        const newMsg = document.createElement('p');
+        newMsg.classList.add('is-size-7', 'mb-1');
+        newMsg.innerHTML = `<span class="status-warning">[${randomMessage.user}]</span>: <span class="status-ok">${randomMessage.msg}</span>`;
+
+        chatArea.appendChild(newMsg);
+        chatArea.scrollTop = chatArea.scrollHeight; // Scroll to bottom
+    }
+
+    // --- Typing Animation Logic ---
+
+    let currentScriptIndex = 0;
+    let charIndex = 0;
+    let typingElement;
+
+    /**
+     * Resets and starts the typing animation for the next line of the script.
+     */
+    function startTypingNextCommand() {
+        if (currentScriptIndex < CONSOLE_SCRIPT.length) {
+            const commandText = CONSOLE_SCRIPT[currentScriptIndex];
+            typingElement = document.createElement('span');
+            typingElement.classList.add('status-info');
+            typingElement.innerHTML = `> ${commandText.charAt(0)}<span class="blink-cursor">|</span>`;
+
+            const consoleOutput = document.getElementById('console-output');
+            consoleOutput.appendChild(typingElement);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+
+            charIndex = 1;
+            setTimeout(() => typeCommand(commandText), 100);
+        } else {
+            // Script finished, restart
+            currentScriptIndex = 0;
+            // Clear console visually, keep a few lines for effect
+            const consoleOutput = document.getElementById('console-output');
+            consoleOutput.innerHTML = '<span class="status-info">LOG: RESTARTING SCRIPT...</span>';
+            setTimeout(startTypingNextCommand, 3000);
+        }
+    }
+
+    /**
+     * Performs the character-by-character typing simulation.
+     */
+    function typeCommand(commandText) {
+        if (charIndex < commandText.length) {
+            const cursor = typingElement.querySelector('.blink-cursor');
+            if (cursor) {
+                cursor.remove();
+            }
+            typingElement.innerHTML += commandText.charAt(charIndex) + '<span class="blink-cursor">|</span>';
+            charIndex++;
+            setTimeout(() => typeCommand(commandText), Math.random() * 50 + 50); // Randomize speed
+        } else {
+            // Typing finished, remove cursor and advance script
+            const cursor = typingElement.querySelector('.blink-cursor');
+            if (cursor) {
+                cursor.remove();
+            }
+            currentScriptIndex++;
+            setTimeout(startTypingNextCommand, 1500); // Wait before next command
+        }
+    }
+
+    // --- Main Application Setup ---
+
+    window.onload = function() {
+        // 1. Start console typing animation
+        startTypingNextCommand();
+
+        // 2. Start real-time log updates (Every 1.5 seconds)
+        setInterval(updateRealtimeLogs, 1500);
+
+        // Initial logs
+        updateRealtimeLogs();
+        updateRealtimeLogs();
+
+        // 3. Start chat updates (Every 4 seconds)
+        setInterval(updateChatLogs, 4000);
+        updateChatLogs();
+    };
+
+</script>
+
+</body>
+</html>
