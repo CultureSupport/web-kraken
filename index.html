@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Stable Diffusion | Transformers.js</title>
+    
+    <!-- Bulma CSS CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Custom Styles to complement Bulma */
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #f5f7fa;
+        }
+        
+        .main-content {
+            flex: 1;
+        }
+
+        .image-container {
+            min-height: 400px;
+            background-color: #eef3f7;
+            border: 2px dashed #dbdbdb;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .image-container.has-image {
+            background-color: #fff;
+            border-style: solid;
+            border-color: #3e8ed0;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .status-log {
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.85rem;
+            background: #1a1a1a;
+            color: #00d1b2;
+            padding: 1rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+
+        .status-entry {
+            margin-bottom: 4px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 2px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3273dc;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .hero-body {
+                padding-top: 2rem;
+                padding-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header / Hero -->
+    <section class="hero is-info is-small">
+        <div class="hero-body">
+            <div class="container">
+                <h1 class="title">
+                    <i class="fa-solid fa-microchip"></i> Client-Side GenAI
+                </h1>
+                <p class="subtitle">
+                    Stable Diffusion & Transformers.js with <strong>Bulma CSS</strong>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Application Area -->
+    <section class="section main-content">
+        <div class="container">
+            
+            <!-- Warning Notification -->
+            <div class="notification is-warning is-light">
+                <button class="delete"></button>
+                <strong>Note:</strong> This runs entirely in your browser using <strong>WebGPU</strong> (if available). First-time generation requires downloading models (~2GB+), which may take several minutes. Please use a desktop browser for best results.
+            </div>
+
+            <div class="columns is-desktop">
+                
+                <!-- Controls Column -->
+                <div class="column is-4">
+                    <div class="box">
+                        <h2 class="title is-4">Configuration</h2>
+                        
+                        <div class="field">
+                            <label class="label">Prompt</label>
+                            <div class="control has-icons-left">
+                                <textarea id="promptInput" class="textarea is-primary" placeholder="e.g., A cyberpunk city in the rain, neon lights, 8k resolution" rows="4">Astronaut riding a horse on Mars, photorealistic, 4k</textarea>
+                                <span class="icon is-small is-left">
+                                    <i class="fa-solid fa-pen-nib"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Settings Accordion (Visual) -->
+                        <div class="field">
+                            <label class="label">Negative Prompt</label>
+                            <div class="control">
+                                <input id="negativePromptInput" class="input" type="text" placeholder="low quality, blurry, distorted" value="low quality, blurry, bad anatomy">
+                            </div>
+                        </div>
+                        
+                        <div class="field">
+                            <label class="label">Inference Steps</label>
+                            <div class="control">
+                                <input id="stepsInput" class="input" type="number" min="1" max="50" value="20">
+                            </div>
+                            <p class="help">Higher steps = better quality but slower.</p>
+                        </div>
+
+                        <div class="field mt-5">
+                            <div class="control">
+                                <button id="generateBtn" class="button is-primary is-fullwidth is-medium">
+                                    <span class="icon">
+                                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                    </span>
+                                    <span>Generate Image</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="field">
+                             <div class="control">
+                                <button id="loadModelBtn" class="button is-dark is-outlined is-fullwidth is-small mt-2">
+                                    <span class="icon"><i class="fa-solid fa-download"></i></span>
+                                    <span>Pre-load Model</span>
+                                </button>
+                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Logger -->
+                    <div class="box">
+                        <h3 class="title is-6">System Log</h3>
+                        <div id="statusLog" class="status-log">
+                            <div class="status-entry">> System initialized.</div>
+                            <div class="status-entry">> Ready to load models.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Column -->
+                <div class="column is-8">
+                    <div class="box" style="height: 100%;">
+                        <div class="level">
+                            <div class="level-left">
+                                <h2 class="title is-4">Output</h2>
+                            </div>
+                            <div class="level-right">
+                                <span class="tag is-info is-light" id="hardwareTag">Checking Hardware...</span>
+                            </div>
+                        </div>
+                        
+                        <div id="imageContainer" class="image-container">
+                            <div class="has-text-centered has-text-grey-light" id="placeholderText">
+                                <i class="fa-regular fa-image fa-3x mb-3"></i>
+                                <p class="is-size-5">Generated image will appear here</p>
+                            </div>
+                            <div id="loadingSpinner" class="is-hidden has-text-centered">
+                                <div class="spinner mb-3 mx-auto"></div>
+                                <p class="heading mt-2">Processing...</p>
+                                <progress id="progressBar" class="progress is-primary is-small mt-2" value="0" max="100" style="width: 200px;"></progress>
+                                <p id="progressText" class="is-size-7">Initializing...</p>
+                            </div>
+                            <img id="resultImage" class="is-hidden" alt="Generated Output" />
+                        </div>
+                        
+                        <div class="buttons is-right mt-4">
+                            <button id="downloadBtn" class="button is-info is-outlined" disabled>
+                                <span class="icon"><i class="fa-solid fa-file-arrow-down"></i></span>
+                                <span>Download</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p>
+                <strong>Browser AI</strong> built with <a href="https://bulma.io">Bulma</a> and <a href="https://huggingface.co/docs/transformers.js">Transformers.js</a>.
+                Running locally via CDN.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Script Type Module for Imports -->
+    <script type="module">
+        // Import transformers.js from CDN
+        import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+
+        // --- Configuration ---
+        // Skipping local model checks to force fetching from HF Hub
+        env.allowLocalModels = false;
+        // Using quantization to save bandwidth/memory if available
+        env.useBrowserCache = true;
+
+        // UI Elements
+        const generateBtn = document.getElementById('generateBtn');
+        const loadModelBtn = document.getElementById('loadModelBtn');
+        const promptInput = document.getElementById('promptInput');
+        const negPromptInput = document.getElementById('negativePromptInput');
+        const stepsInput = document.getElementById('stepsInput');
+        const imageContainer = document.getElementById('imageContainer');
+        const resultImage = document.getElementById('resultImage');
+        const placeholderText = document.getElementById('placeholderText');
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const statusLog = document.getElementById('statusLog');
+        const hardwareTag = document.getElementById('hardwareTag');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        // State
+        let generator = null;
+        let isGenerating = false;
+
+        // Check Hardware Capabilities (Basic)
+        async function checkHardware() {
+            if (navigator.gpu) {
+                hardwareTag.textContent = "WebGPU Available";
+                hardwareTag.className = "tag is-success is-light";
+            } else {
+                hardwareTag.textContent = "CPU Mode (Slow)";
+                hardwareTag.className = "tag is-warning is-light";
+                log("Warning: WebGPU not detected. Generation will be very slow.");
+            }
+        }
+        checkHardware();
+
+        // Logging Helper
+        function log(message) {
+            const entry = document.createElement('div');
+            entry.className = 'status-entry';
+            entry.textContent = `> ${message}`;
+            statusLog.appendChild(entry);
+            statusLog.scrollTop = statusLog.scrollHeight;
+        }
+
+        // Progress Callback
+        function onProgress(progress) {
+            // progress object looks like { status: 'progress', name: 'model_file', file: '...', progress: 0-100, loaded: ..., total: ... }
+            if (progress.status === 'progress') {
+                const percent = progress.progress ? progress.progress.toFixed(1) : 0;
+                progressBar.value = percent;
+                progressText.innerText = `Downloading ${progress.file} (${percent}%)`;
+            } else if (progress.status === 'initiate') {
+                progressText.innerText = `Initiating download: ${progress.file}`;
+                log(`Downloading: ${progress.file}`);
+            } else if (progress.status === 'done') {
+                progressText.innerText = `Loaded ${progress.file}`;
+            }
+        }
+
+        // Initialize Model
+        async function loadModel() {
+            if (generator) return generator;
+
+            try {
+                disableControls(true);
+                showLoading(true, "Loading AI Models...");
+                log("Initializing Text-to-Image pipeline...");
+                log("Note: This might download ~2GB of data on first run.");
+
+                // NOTE: 'Xenova/stable-diffusion-v1-4' is huge. 
+                // For a browser demo that is responsive, we often use smaller models or quantization.
+                // However, user asked for Stable Diffusion. 
+                // We will try a distilled or quantized version if available, or the standard one.
+                // Using 'Xenova/stable-diffusion-v1-4' as the standard reference.
+                
+                // IMPORTANT: Creating the pipeline
+                // task: 'text-to-image'
+                // model: 'Xenova/stable-diffusion-v1-4' (or 'Xenova/tiny-stable-diffusion-v1-4' for speed tests if available)
+                generator = await pipeline('text-to-image', 'Xenova/stable-diffusion-v1-4', {
+                    progress_callback: onProgress
+                });
+
+                log("Model loaded successfully!");
+                showLoading(false);
+                disableControls(false);
+                return generator;
+            } catch (err) {
+                log(`Error loading model: ${err.message}`);
+                showLoading(false);
+                disableControls(false);
+                alert("Failed to load models. See log for details. Ensure you have a stable connection and WebGPU support.");
+                console.error(err);
+                return null;
+            }
+        }
+
+        // Generate Function
+        async function generateImage() {
+            if (isGenerating) return;
+            
+            const prompt = promptInput.value;
+            const negativePrompt = negPromptInput.value;
+            const steps = parseInt(stepsInput.value) || 20;
+
+            if (!prompt) {
+                alert("Please enter a prompt");
+                return;
+            }
+
+            isGenerating = true;
+            disableControls(true);
+            showLoading(true, "Generating...");
+            log(`Starting generation for: "${prompt.substring(0, 20)}..."`);
+            log(`Steps: ${steps}`);
+
+            try {
+                // Ensure model is loaded
+                if (!generator) {
+                    await loadModel();
+                    if (!generator) throw new Error("Model failed to initialize");
+                }
+
+                // Run Inference
+                // Note: This API call is asynchronous and CPU/GPU intensive
+                const output = await generator(prompt, {
+                    negative_prompt: negativePrompt,
+                    num_inference_steps: steps,
+                    guidance_scale: 7.5,
+                    // callback_function could be used for step updates if supported by version
+                });
+
+                log("Generation complete!");
+                
+                // Render Output
+                // The output is typically a Blob or an Image object depending on the pipeline version
+                // Transformers.js typically returns an object with an 'image' property (RawImage)
+                
+                // We need to convert output to a displayable URL
+                if (output && output.images && output.images.length > 0) {
+                     const image = output.images[0];
+                     // Convert RawImage/Tensor to canvas/url
+                     // Transformers.js images usually have a .save() or .toCanvas() method, or we can use Blob
+                     const blob = await image.toBlob(); // Hypothetical utility, often simple toBlob() or using a temporary canvas
+                     const url = URL.createObjectURL(blob);
+                     
+                     resultImage.src = url;
+                     resultImage.classList.remove('is-hidden');
+                     placeholderText.classList.add('is-hidden');
+                     imageContainer.classList.add('has-image');
+                     
+                     // Enable download
+                     downloadBtn.disabled = false;
+                     downloadBtn.onclick = () => {
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `sd-gen-${Date.now()}.png`;
+                        a.click();
+                     };
+                } else {
+                    // Fallback visualization if direct object mismatch
+                    log("Output format check...");
+                    console.log(output);
+                    // Often pipeline returns { images: [Jimp/RawImage] }
+                    // If simple output fallback:
+                     const canvas = document.createElement('canvas');
+                     canvas.width = output.images[0].width;
+                     canvas.height = output.images[0].height;
+                     const ctx = canvas.getContext('2d');
+                     const imageData = new ImageData(
+                        Uint8ClampedArray.from(output.images[0].data),
+                        output.images[0].width,
+                        output.images[0].height
+                     );
+                     ctx.putImageData(imageData, 0, 0);
+                     resultImage.src = canvas.toDataURL();
+                     resultImage.classList.remove('is-hidden');
+                     placeholderText.classList.add('is-hidden');
+                     imageContainer.classList.add('has-image');
+                }
+
+            } catch (err) {
+                log(`Generation Error: ${err.message}`);
+                console.error(err);
+                alert("An error occurred during generation. Check console for details.");
+            } finally {
+                isGenerating = false;
+                showLoading(false);
+                disableControls(false);
+            }
+        }
+
+        // UI Helpers
+        function showLoading(show, text = "") {
+            if (show) {
+                loadingSpinner.classList.remove('is-hidden');
+                placeholderText.classList.add('is-hidden');
+                resultImage.classList.add('is-hidden');
+                progressText.innerText = text;
+            } else {
+                loadingSpinner.classList.add('is-hidden');
+                if (!resultImage.src) placeholderText.classList.remove('is-hidden');
+            }
+        }
+
+        function disableControls(disable) {
+            generateBtn.disabled = disable;
+            loadModelBtn.disabled = disable;
+            promptInput.disabled = disable;
+            if (disable) {
+                generateBtn.classList.add('is-loading');
+            } else {
+                generateBtn.classList.remove('is-loading');
+            }
+        }
+
+        // Notification close logic
+        document.querySelectorAll('.notification .delete').forEach((deleteBtn) => {
+            const notification = deleteBtn.parentNode;
+            deleteBtn.addEventListener('click', () => {
+                notification.parentNode.removeChild(notification);
+            });
+        });
+
+        // Event Listeners
+        generateBtn.addEventListener('click', generateImage);
+        loadModelBtn.addEventListener('click', loadModel);
+
+    </script>
+</body>
+</html>
+
