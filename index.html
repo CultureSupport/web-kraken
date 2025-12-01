@@ -1,0 +1,344 @@
+import React, { useState, useCallback } from 'react';
+import {
+  Palette, Smartphone, LayoutGrid, Zap, Code, Terminal, Send, Atom, Settings, PaintBucket, Type,
+  MoveHorizontal, Square, Component, Edit3, Save, Share2, Box, Cpu
+} from 'lucide-react';
+
+// --- Utility Components ---
+
+// Data for component palette
+const components = [
+  { name: 'Text Block', icon: Type, type: 'TextBlock' },
+  { name: 'Button (Primary)', icon: Send, type: 'Button' },
+  { name: 'Image/Media', icon: Box, type: 'Image' },
+  { name: 'Input Field', icon: Edit3, type: 'Input' },
+  { name: 'List/Feed', icon: LayoutGrid, type: 'List' },
+  { name: 'Icon/Logo', icon: Atom, type: 'Icon' },
+];
+
+// Data for icon library (Mocking the icon builder)
+const iconPresets = [
+    { name: 'User Profile', icon: '👤' },
+    { name: 'Shopping Cart', icon: '🛒' },
+    { name: 'Settings', icon: '⚙️' },
+    { name: 'Home', icon: '🏠' },
+];
+
+/**
+ * Left Sidebar: Component Palette and AI/Automation Tools
+ */
+const ComponentPalette = ({ setSelectedElement }) => (
+  <div className="p-4 space-y-6 overflow-y-auto h-full bg-gray-50">
+    <h2 className="text-xl font-bold text-gray-800 border-b pb-2 mb-4">🛠️ Component Library</h2>
+    
+    {/* Components Grid (Bulma Box style) */}
+    <div className="grid grid-cols-2 gap-3">
+      {components.map((comp) => (
+        <div 
+          key={comp.name} 
+          className="p-3 bg-white border border-gray-300 rounded-lg shadow-sm hover:shadow-md transition duration-150 cursor-pointer flex flex-col items-center text-center hover:border-blue-500"
+          onClick={() => setSelectedElement({ id: comp.type, name: comp.name })}
+        >
+          <comp.icon className="w-6 h-6 text-blue-600 mb-1" />
+          <span className="text-xs font-medium text-gray-700">{comp.name}</span>
+        </div>
+      ))}
+    </div>
+
+    {/* AI App Generation Mockup (Bulma Card style) */}
+    <div className="mt-6 p-4 bg-white border border-gray-300 rounded-lg shadow-lg space-y-3">
+        <h3 className="font-semibold text-xl text-blue-700 flex items-center gap-2"><Cpu className="w-6 h-6"/> AI App Generator</h3>
+        <p className="text-sm text-gray-600">Generate a full app structure from a prompt.</p>
+        <textarea
+            className="w-full p-2 text-sm border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            rows="3"
+            placeholder="e.g., 'A 3-screen recipe app with user login and a search function.'"
+        ></textarea>
+        <button className="w-full py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition shadow-md">
+            Generate AI App
+        </button>
+    </div>
+
+    {/* Icon Builder Mockup */}
+    <div className="space-y-3 pt-4 border-t mt-4">
+        <h3 className="text-lg font-semibold text-gray-800">🎨 Icon Builder</h3>
+        <div className="grid grid-cols-4 gap-2">
+            {iconPresets.map(preset => (
+                <div key={preset.name} className="flex items-center justify-center p-2 bg-gray-200 rounded-lg hover:bg-blue-100 border border-gray-300 cursor-pointer" title={preset.name}>
+                    <span className="text-xl">{preset.icon}</span>
+                </div>
+            ))}
+        </div>
+        <button className="w-full text-sm py-1 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition font-medium">
+            Customize Icon
+        </button>
+    </div>
+  </div>
+);
+
+/**
+ * Center Panel: Android Mockup (Live Preview)
+ */
+const AndroidMockup = ({ selectedElement }) => {
+  // Use a strong, clear border for Bulma-style selection highlighting
+  const highlightClass = (id) => selectedElement && selectedElement.id === id ? 'ring-4 ring-orange-500 ring-offset-2 transition-all duration-300 shadow-xl' : 'transition-all duration-300';
+  
+  return (
+    <div className="flex items-center justify-center h-full p-8 bg-gray-200">
+      <div className="w-full max-w-sm h-full max-h-[800px] shadow-2xl bg-gray-900 rounded-[2.5rem] p-3 relative flex flex-col">
+        {/* Android Frame Bezel */}
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-20 h-2 bg-gray-700 rounded-b-lg"></div>
+        <div className="absolute top-5 left-5 w-1 h-1 rounded-full bg-gray-600"></div>
+
+        {/* Screen Area (The App) */}
+        <div className="bg-white rounded-[2rem] flex flex-col flex-grow overflow-hidden border-8 border-gray-100">
+          
+          {/* Header Designer (Bulma-style primary background) */}
+          <div 
+            className={`p-4 bg-blue-600 text-white flex justify-between items-center h-16 ${highlightClass('Header')}`}
+          >
+            <span className="font-semibold text-lg">My Bulma-App</span>
+            <Settings className="w-5 h-5 cursor-pointer hover:text-blue-200"/>
+          </div>
+
+          {/* Body Designer */}
+          <div 
+            className={`flex-grow p-4 space-y-4 overflow-y-auto ${highlightClass('Body')}`}
+            style={{ minHeight: '100px' }}
+          >
+            <p className="text-gray-700 text-sm">Design in progress...</p>
+            
+            {/* Mock Component 1: Selected Element (Bulma button) */}
+            <div className={`p-3 bg-blue-100 rounded-lg border border-blue-200 ${highlightClass('Button')}`}>
+              <button className="w-full py-2 bg-blue-600 text-white rounded-md font-bold shadow-lg hover:bg-blue-700 transition">
+                {selectedElement?.name || "Primary Action"}
+              </button>
+            </div>
+
+            {/* Mock Component 2: Text Block (Bulma content block) */}
+            <div className={`p-4 bg-white border border-gray-300 rounded-md shadow-sm ${highlightClass('TextBlock')}`}>
+              <h4 className="font-bold text-gray-800">Section Title</h4>
+              <p className="text-sm text-gray-500 mt-1">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+            </div>
+            
+            {/* Mock Component 3: List */}
+            <ul className={`divide-y divide-gray-200 border border-gray-300 rounded-md ${highlightClass('List')}`}>
+                <li className="p-3 flex justify-between items-center text-sm hover:bg-gray-50">Item One <Zap className="w-4 h-4 text-orange-500"/></li>
+                <li className="p-3 flex justify-between items-center text-sm hover:bg-gray-50">Item Two <Code className="w-4 h-4 text-gray-600"/></li>
+            </ul>
+            
+            <div className={`p-3 bg-gray-100 rounded-md border border-gray-300 ${highlightClass('Input')}`}>
+              <input type="text" placeholder="Enter data..." className="w-full p-2 text-sm border border-gray-300 rounded-md focus:border-blue-500"/>
+            </div>
+
+          </div>
+
+          {/* Footer Designer (Bulma nav-bar style) */}
+          <div 
+            className={`p-2 bg-white border-t border-gray-300 flex justify-around items-center h-14 ${highlightClass('Footer')}`}
+          >
+            <div className="flex flex-col items-center text-xs text-blue-600 font-bold">
+                <LayoutGrid className="w-5 h-5"/>
+                Home
+            </div>
+            <div className="flex flex-col items-center text-xs text-gray-500">
+                <Share2 className="w-5 h-5"/>
+                Share
+            </div>
+            <div className="flex flex-col items-center text-xs text-gray-500">
+                <Save className="w-5 h-5"/>
+                Save
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * Right Sidebar: Design Properties and Element Inspector
+ */
+const DesignPanel = ({ selectedElement, theme, setTheme }) => (
+  <div className="p-4 space-y-6 overflow-y-auto h-full bg-white border-l border-gray-300">
+    <h2 className="text-xl font-bold text-gray-800 border-b pb-2 mb-4">
+      ⚙️ Properties: {selectedElement ? selectedElement.name : 'Screen'}
+    </h2>
+
+    {/* Color and Design Panel (Bulma Box) */}
+    <div className="space-y-3 p-4 bg-gray-50 border border-gray-300 rounded-lg shadow-inner">
+      <h3 className="font-bold text-blue-700 flex items-center gap-2 text-lg"><PaintBucket className="w-5 h-5"/> App Theme & Color</h3>
+      
+      {/* Theme Toggle */}
+      <div className="flex items-center justify-between text-sm pt-2">
+        <span className="font-medium text-gray-600">Color Theme:</span>
+        <div className="flex space-x-2">
+            <button 
+                className={`px-3 py-1 rounded-full text-xs font-medium border ${theme === 'light' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'}`}
+                onClick={() => setTheme('light')}
+            >
+                Light
+            </button>
+            <button 
+                className={`px-3 py-1 rounded-full text-xs font-medium border ${theme === 'dark' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300'}`}
+                onClick={() => setTheme('dark')}
+            >
+                Dark
+            </button>
+        </div>
+      </div>
+
+      {/* Primary Color Picker Mockup */}
+      <div className="flex items-center justify-between text-sm">
+        <span className="font-medium text-gray-600">Primary Color:</span>
+        <div className="flex items-center space-x-2">
+            <div className="w-6 h-6 rounded-md bg-blue-600 border-4 border-blue-300 cursor-pointer shadow-md"></div>
+            <div className="w-6 h-6 rounded-md bg-red-600 border-2 border-gray-300 cursor-pointer"></div>
+            <div className="w-6 h-6 rounded-md bg-green-600 border-2 border-gray-300 cursor-pointer"></div>
+        </div>
+      </div>
+    </div>
+
+    {/* Button Designer - Conditional Mockup (Bulma-style fields) */}
+    {(selectedElement?.id === 'Button' || selectedElement?.id === 'Footer') && (
+      <div className="space-y-4 p-4 bg-white border border-gray-300 rounded-lg shadow-md">
+        <h3 className="font-bold text-blue-700 flex items-center gap-2 text-lg"><Square className="w-5 h-5"/> Button Designer</h3>
+        
+        <div className="text-sm space-y-2">
+          <label className="block text-gray-600 font-medium">Shape</label>
+          <div className="flex gap-2">
+              <button className="px-3 py-1 border border-gray-300 rounded-md text-xs hover:bg-gray-100">Square</button>
+              <button className="px-3 py-1 bg-blue-100 text-blue-700 border border-blue-500 rounded-md text-xs font-bold">Rounded</button>
+              <button className="px-3 py-1 border border-gray-300 rounded-full text-xs hover:bg-gray-100">Pill</button>
+          </div>
+        </div>
+
+        <div className="text-sm space-y-2">
+          <label className="block text-gray-600 font-medium">Shadow</label>
+          <div className="flex gap-2">
+              <button className="px-3 py-1 border border-gray-300 rounded-md text-xs shadow-md hover:bg-gray-100">Lifted</button>
+              <button className="px-3 py-1 bg-blue-100 text-blue-700 border border-blue-500 rounded-md text-xs shadow-none font-bold">Flat</button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Layout & Spacing */}
+    <div className="space-y-3 p-4 bg-white border border-gray-300 rounded-lg shadow-md">
+      <h3 className="font-bold text-gray-800 flex items-center gap-2 text-lg"><MoveHorizontal className="w-5 h-5"/> Layout (Flexbox)</h3>
+      <div className="grid grid-cols-2 gap-3 text-sm">
+        <div>
+          <label className="block text-gray-600 mb-1">Padding (Vertical)</label>
+          <input type="number" defaultValue="16" className="w-full p-1 border border-gray-300 rounded-md text-xs"/>
+        </div>
+        <div>
+          <label className="block text-gray-600 mb-1">Margin (Horizontal)</label>
+          <input type="number" defaultValue="0" className="w-full p-1 border border-gray-300 rounded-md text-xs"/>
+        </div>
+      </div>
+    </div>
+
+  </div>
+);
+
+/**
+ * Bottom Panel: Logic and Data Flow Editor
+ */
+const LogicFlow = () => (
+  <div className="p-4 border-t border-gray-300 bg-white overflow-x-auto">
+    <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2 border-b pb-2">
+      <Zap className="w-5 h-5 text-orange-600"/> Backend & Automation Flow
+    </h2>
+    
+    <div className="flex space-x-6 items-center h-20">
+      
+      {/* Node 1: App Interaction Trigger */}
+      <div className="flex flex-col items-center flex-shrink-0">
+        <div className="p-3 bg-blue-600 text-white rounded-full shadow-lg border-2 border-blue-300">
+          <Component className="w-6 h-6" />
+        </div>
+        <span className="text-xs mt-1 font-medium text-gray-700">App.jsx Click</span>
+      </div>
+
+      <div className="text-xl text-gray-400 font-bold flex-shrink-0">&rarr;</div>
+
+
+      {/* Node 2: Database Connection (PHP/MySQL Mock) */}
+      <div className="flex flex-col items-center flex-shrink-0">
+        <div className="p-3 bg-red-600 text-white rounded-full shadow-lg border-2 border-red-300">
+          <Code className="w-6 h-6" />
+        </div>
+        <span className="text-xs mt-1 font-medium text-gray-700">Connect PHP Database</span>
+        <span className="text-xs text-gray-500">(SQL Query Node)</span>
+      </div>
+
+      <div className="text-xl text-gray-400 font-bold flex-shrink-0">&rarr;</div>
+
+      {/* Node 3: Automated n8n Instance (Bulma warning color) */}
+      <div className="flex flex-col items-center flex-shrink-0">
+        <div className="p-3 bg-yellow-500 text-gray-800 rounded-full shadow-lg border-2 border-yellow-300 animate-pulse">
+          <Terminal className="w-6 h-6" />
+        </div>
+        <span className="text-xs mt-1 font-medium text-gray-700">n8n Workflow</span>
+        <span className="text-xs text-blue-500 underline cursor-pointer">View Instance</span>
+      </div>
+      
+    </div>
+  </div>
+);
+
+
+// --- Main App Component ---
+
+const App = () => {
+  const [selectedElement, setSelectedElement] = useState(null);
+  const [theme, setTheme] = useState('light'); // Mock theme state
+
+  return (
+    <div className="min-h-screen bg-gray-100 font-sans antialiased text-gray-800 flex flex-col">
+      {/* Top Header/Toolbar (Bulma Navbar/Hero style) */}
+      <header className="flex justify-between items-center p-4 border-b-4 border-blue-600 bg-white shadow-lg">
+        <div className="flex items-center space-x-3">
+          <Smartphone className="w-6 h-6 text-blue-600"/>
+          <h1 className="text-2xl font-extrabold text-gray-900">App Builder Studio</h1>
+          <span className="text-sm font-medium px-3 py-1 bg-gray-200 rounded-full text-gray-700 border border-gray-300">App.jsx</span>
+        </div>
+        <div className="flex items-center space-x-3">
+          <button className="px-4 py-2 bg-blue-600 text-white rounded-md font-bold hover:bg-blue-700 transition shadow-lg">
+            Deploy App
+          </button>
+          <button className="p-2 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300 transition border border-gray-300">
+            <Share2 className="w-5 h-5"/>
+          </button>
+        </div>
+      </header>
+
+      {/* Main Builder Grid */}
+      <div className="flex flex-grow overflow-hidden">
+        
+        {/* Left Sidebar: Components & AI */}
+        <div className="w-72 bg-gray-50 flex-shrink-0 border-r border-gray-300 overflow-y-auto">
+          <ComponentPalette setSelectedElement={setSelectedElement} />
+        </div>
+
+        {/* Center: Live Mockup Canvas */}
+        <main className="flex-grow overflow-auto">
+          <AndroidMockup selectedElement={selectedElement} />
+        </main>
+
+        {/* Right Sidebar: Design & Properties */}
+        <div className="w-80 bg-white flex-shrink-0 overflow-y-auto">
+          <DesignPanel selectedElement={selectedElement} theme={theme} setTheme={setTheme} />
+        </div>
+      </div>
+
+      {/* Bottom Panel: Logic Flow */}
+      <footer className="h-40 bg-white flex-shrink-0 border-t-2 border-gray-300">
+        <LogicFlow />
+      </footer>
+    </div>
+  );
+};
+
+export default App;
+
