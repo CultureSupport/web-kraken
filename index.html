@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Culture.Support ™️</title>
+    <title>Culture.Support Building Image Designer</title>
     
     <!-- Bulma CSS CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
@@ -55,7 +55,7 @@
             font-family: monospace;
             font-size: 0.85rem;
             background: #1a1a1a;
-            color: #00d1b2;
+            color: #48c78e; /* Use Bulma success color for log */
             padding: 1rem;
             border-radius: 6px;
             margin-top: 1rem;
@@ -92,15 +92,15 @@
 </head>
 <body>
 
-    <!-- Header / Hero -->
-    <section class="hero is-info is-small">
+    <!-- Header / Hero (is-link for a professional, supportive feel) -->
+    <section class="hero is-link is-small">
         <div class="hero-body">
             <div class="container">
                 <h1 class="title">
-                    <i class="fa-solid fa-microchip"></i> Client-Side GenAI
+                    <i class="fa-solid fa-paintbrush"></i> Culture.Support Image Designer
                 </h1>
                 <p class="subtitle">
-                    Stable Diffusion & Transformers.js with <strong>Bulma CSS</strong>
+                    A client-side tool for generating cultural and architectural concepts.
                 </p>
             </div>
         </div>
@@ -113,7 +113,7 @@
             <!-- Warning Notification -->
             <div class="notification is-warning is-light">
                 <button class="delete"></button>
-                <strong>Note:</strong> This runs entirely in your browser using <strong>WebGPU</strong> (if available). First-time generation requires downloading models (~2GB+), which may take several minutes. Please use a desktop browser for best results.
+                <strong>Note:</strong> This runs entirely in your browser using <strong>WebGPU</strong> (if available). First-time generation requires downloading models (~2GB+), which may take several minutes. Please use a powerful device for best results.
             </div>
 
             <div class="columns is-desktop">
@@ -121,12 +121,12 @@
                 <!-- Controls Column -->
                 <div class="column is-4">
                     <div class="box">
-                        <h2 class="title is-4">Configuration</h2>
+                        <h2 class="title is-4">Concept Configuration</h2>
                         
                         <div class="field">
-                            <label class="label">Prompt</label>
+                            <label class="label">Cultural Concept Prompt</label>
                             <div class="control has-icons-left">
-                                <textarea id="promptInput" class="textarea is-primary" placeholder="e.g., A cyberpunk city in the rain, neon lights, 8k resolution" rows="4">Astronaut riding a horse on Mars, photorealistic, 4k</textarea>
+                                <textarea id="promptInput" class="textarea is-link" placeholder="e.g., A community garden mural featuring abstract traditional patterns from the region, vivid colors" rows="4">Historical Japanese temple architecture in a serene, mist-covered landscape, highly detailed</textarea>
                                 <span class="icon is-small is-left">
                                     <i class="fa-solid fa-pen-nib"></i>
                                 </span>
@@ -135,9 +135,9 @@
 
                         <!-- Advanced Settings Accordion (Visual) -->
                         <div class="field">
-                            <label class="label">Negative Prompt</label>
+                            <label class="label">Negative Prompt (Avoid these styles)</label>
                             <div class="control">
-                                <input id="negativePromptInput" class="input" type="text" placeholder="low quality, blurry, distorted" value="low quality, blurry, bad anatomy">
+                                <input id="negativePromptInput" class="input" type="text" placeholder="low quality, blurry, distorted" value="low quality, blurry, bad anatomy, modern">
                             </div>
                         </div>
                         
@@ -146,16 +146,16 @@
                             <div class="control">
                                 <input id="stepsInput" class="input" type="number" min="1" max="50" value="20">
                             </div>
-                            <p class="help">Higher steps = better quality but slower.</p>
+                            <p class="help">Higher steps increase quality and generation time.</p>
                         </div>
 
                         <div class="field mt-5">
                             <div class="control">
-                                <button id="generateBtn" class="button is-primary is-fullwidth is-medium">
+                                <button id="generateBtn" class="button is-link is-fullwidth is-medium">
                                     <span class="icon">
-                                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                        <i class="fa-solid fa-lightbulb"></i>
                                     </span>
-                                    <span>Generate Image</span>
+                                    <span>Generate Concept</span>
                                 </button>
                             </div>
                         </div>
@@ -172,7 +172,7 @@
 
                     <!-- Logger -->
                     <div class="box">
-                        <h3 class="title is-6">System Log</h3>
+                        <h3 class="title is-6">System Log (AI Status)</h3>
                         <div id="statusLog" class="status-log">
                             <div class="status-entry">> System initialized.</div>
                             <div class="status-entry">> Ready to load models.</div>
@@ -185,7 +185,7 @@
                     <div class="box" style="height: 100%;">
                         <div class="level">
                             <div class="level-left">
-                                <h2 class="title is-4">Output</h2>
+                                <h2 class="title is-4">Design Output</h2>
                             </div>
                             <div class="level-right">
                                 <span class="tag is-info is-light" id="hardwareTag">Checking Hardware...</span>
@@ -195,21 +195,21 @@
                         <div id="imageContainer" class="image-container">
                             <div class="has-text-centered has-text-grey-light" id="placeholderText">
                                 <i class="fa-regular fa-image fa-3x mb-3"></i>
-                                <p class="is-size-5">Generated image will appear here</p>
+                                <p class="is-size-5">Generated design concept will appear here</p>
                             </div>
                             <div id="loadingSpinner" class="is-hidden has-text-centered">
                                 <div class="spinner mb-3 mx-auto"></div>
                                 <p class="heading mt-2">Processing...</p>
-                                <progress id="progressBar" class="progress is-primary is-small mt-2" value="0" max="100" style="width: 200px;"></progress>
+                                <progress id="progressBar" class="progress is-link is-small mt-2" value="0" max="100" style="width: 200px;"></progress>
                                 <p id="progressText" class="is-size-7">Initializing...</p>
                             </div>
                             <img id="resultImage" class="is-hidden" alt="Generated Output" />
                         </div>
                         
                         <div class="buttons is-right mt-4">
-                            <button id="downloadBtn" class="button is-info is-outlined" disabled>
+                            <button id="downloadBtn" class="button is-link is-outlined" disabled>
                                 <span class="icon"><i class="fa-solid fa-file-arrow-down"></i></span>
-                                <span>Download</span>
+                                <span>Download Concept</span>
                             </button>
                         </div>
                     </div>
@@ -222,7 +222,7 @@
     <footer class="footer">
         <div class="content has-text-centered">
             <p>
-                <strong>Browser AI</strong> built with <a href="https://bulma.io">Bulma</a> and <a href="https://huggingface.co/docs/transformers.js">Transformers.js</a>.
+                <strong>Culture.Support Designer</strong> built with <a href="https://bulma.io">Bulma</a> and <a href="https://huggingface.co/docs/transformers.js">Transformers.js</a>.
                 Running locally via CDN.
             </p>
         </div>
@@ -262,7 +262,7 @@
         // Check Hardware Capabilities (Basic)
         async function checkHardware() {
             if (navigator.gpu) {
-                hardwareTag.textContent = "WebGPU Available";
+                hardwareTag.textContent = "WebGPU Available (Optimal)";
                 hardwareTag.className = "tag is-success is-light";
             } else {
                 hardwareTag.textContent = "CPU Mode (Slow)";
@@ -306,20 +306,13 @@
                 log("Initializing Text-to-Image pipeline...");
                 log("Note: This might download ~2GB of data on first run.");
 
-                // NOTE: 'Xenova/stable-diffusion-v1-4' is huge. 
-                // For a browser demo that is responsive, we often use smaller models or quantization.
-                // However, user asked for Stable Diffusion. 
-                // We will try a distilled or quantized version if available, or the standard one.
-                // Using 'Xenova/stable-diffusion-v1-4' as the standard reference.
-                
                 // IMPORTANT: Creating the pipeline
-                // task: 'text-to-image'
-                // model: 'Xenova/stable-diffusion-v1-4' (or 'Xenova/tiny-stable-diffusion-v1-4' for speed tests if available)
+                // Using 'Xenova/stable-diffusion-v1-4' as the standard reference.
                 generator = await pipeline('text-to-image', 'Xenova/stable-diffusion-v1-4', {
                     progress_callback: onProgress
                 });
 
-                log("Model loaded successfully!");
+                log("Model loaded successfully! You can now generate concepts.");
                 showLoading(false);
                 disableControls(false);
                 return generator;
@@ -342,13 +335,13 @@
             const steps = parseInt(stepsInput.value) || 20;
 
             if (!prompt) {
-                alert("Please enter a prompt");
+                alert("Please enter a concept prompt");
                 return;
             }
 
             isGenerating = true;
             disableControls(true);
-            showLoading(true, "Generating...");
+            showLoading(true, "Generating Concept...");
             log(`Starting generation for: "${prompt.substring(0, 20)}..."`);
             log(`Steps: ${steps}`);
 
@@ -360,26 +353,20 @@
                 }
 
                 // Run Inference
-                // Note: This API call is asynchronous and CPU/GPU intensive
                 const output = await generator(prompt, {
                     negative_prompt: negativePrompt,
                     num_inference_steps: steps,
                     guidance_scale: 7.5,
-                    // callback_function could be used for step updates if supported by version
                 });
 
-                log("Generation complete!");
+                log("Concept generation complete!");
                 
                 // Render Output
-                // The output is typically a Blob or an Image object depending on the pipeline version
-                // Transformers.js typically returns an object with an 'image' property (RawImage)
-                
-                // We need to convert output to a displayable URL
                 if (output && output.images && output.images.length > 0) {
                      const image = output.images[0];
-                     // Convert RawImage/Tensor to canvas/url
-                     // Transformers.js images usually have a .save() or .toCanvas() method, or we can use Blob
-                     const blob = await image.toBlob(); // Hypothetical utility, often simple toBlob() or using a temporary canvas
+                     
+                     // Convert RawImage/Tensor to Blob
+                     const blob = await image.toBlob(); 
                      const url = URL.createObjectURL(blob);
                      
                      resultImage.src = url;
@@ -392,29 +379,12 @@
                      downloadBtn.onclick = () => {
                         const a = document.createElement('a');
                         a.href = url;
-                        a.download = `sd-gen-${Date.now()}.png`;
+                        a.download = `culture-concept-${Date.now()}.png`;
                         a.click();
                      };
                 } else {
                     // Fallback visualization if direct object mismatch
-                    log("Output format check...");
-                    console.log(output);
-                    // Often pipeline returns { images: [Jimp/RawImage] }
-                    // If simple output fallback:
-                     const canvas = document.createElement('canvas');
-                     canvas.width = output.images[0].width;
-                     canvas.height = output.images[0].height;
-                     const ctx = canvas.getContext('2d');
-                     const imageData = new ImageData(
-                        Uint8ClampedArray.from(output.images[0].data),
-                        output.images[0].width,
-                        output.images[0].height
-                     );
-                     ctx.putImageData(imageData, 0, 0);
-                     resultImage.src = canvas.toDataURL();
-                     resultImage.classList.remove('is-hidden');
-                     placeholderText.classList.add('is-hidden');
-                     imageContainer.classList.add('has-image');
+                    log("Output format check failed. Could not display image.");
                 }
 
             } catch (err) {
@@ -445,6 +415,8 @@
             generateBtn.disabled = disable;
             loadModelBtn.disabled = disable;
             promptInput.disabled = disable;
+            negPromptInput.disabled = disable;
+            stepsInput.disabled = disable;
             if (disable) {
                 generateBtn.classList.add('is-loading');
             } else {
