@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered DevOps Utility</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons as a fallback (using inline SVG is often better, but keeping consistency) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom styles for appearance */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="app" class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm sticky top-0 z-10 border-b border-gray-200">
+            <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-gray-900 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap w-6 h-6 text-indigo-600 mr-2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    DevOps Command Generator
+                </h1>
+                <div class="flex space-x-4">
+                    <span id="user-id-display" class="text-sm text-gray-500 bg-gray-100 p-2 rounded-lg">User: ID-</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Grid -->
+        <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Utility/Mock Data -->
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-indigo-200">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-server w-5 h-5 mr-2 text-indigo-500"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" x2="6" y1="6" y2="6"/><line x1="18" x2="18" y1="6" y2="6"/></svg>
+                        Server Status (Simulated)
+                    </h2>
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex justify-between items-center p-2 bg-green-50 rounded-lg">
+                            <span>API Gateway</span>
+                            <span class="text-green-600 font-medium">Online (100%)</span>
+                        </li>
+                        <li class="flex justify-between items-center p-2 bg-yellow-50 rounded-lg">
+                            <span>Monitoring DB</span>
+                            <span class="text-yellow-600 font-medium">Warning (High I/O)</span>
+                        </li>
+                        <li class="flex justify-between items-center p-2 bg-gray-50 rounded-lg">
+                            <span>Staging Server</span>
+                            <span class="text-gray-600 font-medium">Maintenance</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-globe w-5 h-5 mr-2 text-indigo-500"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                        Common Tasks
+                    </h2>
+                    <ul class="space-y-3 text-sm list-disc list-inside text-gray-600">
+                        <li>"Check connection to 192.168.1.1"</li>
+                        <li>"Find SSH config file location"</li>
+                        <li>"How to kill a process on Mac"</li>
+                        <li>"Search Apache logs for 404 errors"</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right Column: AI Command Generator -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white p-8 rounded-xl shadow-xl border border-indigo-300">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-6 h-6 mr-3 text-indigo-600"><polyline points="4 17 10 17 10 17"/><line x1="12" x2="15" y1="10" y2="10"/><path d="M20 5v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/></svg>
+                        AI Command Generator
+                    </h2>
+
+                    <div class="space-y-4 mb-8">
+                        <label for="prompt" class="block text-sm font-medium text-gray-700">
+                            Describe the task for the terminal (e.g., "Check if port 443 is open on remote server X"):
+                        </label>
+                        <input
+                            id="prompt"
+                            type="text"
+                            placeholder="e.g., 'Find all occurrences of the word WARNING in /var/log/app.log and count them'"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-lg shadow-sm"
+                        />
+                        <button
+                            id="generate-btn"
+                            class="w-full inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl shadow-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out disabled:opacity-50"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-code w-5 h-5 mr-2" id="code-icon"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                            <svg class="hidden animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" id="loading-spinner">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Generate Command
+                        </button>
+                    </div>
+
+                    <!-- Command Output Area -->
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-code w-5 h-5 mr-2 text-green-600"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                            Generated Solution
+                        </h3>
+
+                        <div id="error-message" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg mb-4" role="alert">
+                            <p class="font-bold">Error:</p>
+                            <p id="error-text"></p>
+                        </div>
+                        
+                        <div id="command-output-wrapper" class="hidden bg-gray-800 text-white p-4 rounded-xl shadow-inner mb-4 relative">
+                            <pre class="overflow-x-auto p-2 text-sm">
+                                <code id="command-output"></code>
+                            </pre>
+                            <button
+                                id="copy-btn"
+                                class="absolute top-2 right-2 p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-medium transition duration-150"
+                                title="Copy Command"
+                            >
+                                Copy
+                            </button>
+                        </div>
+
+                        <div id="explanation-output" class="hidden bg-indigo-50 p-4 rounded-xl border border-indigo-200">
+                            <h4 class="font-semibold text-indigo-700 mb-2">Explanation:</h4>
+                            <p class="text-gray-700 text-sm" id="explanation-text"></p>
+                        </div>
+
+                        <p id="placeholder-message" class="text-gray-500 italic text-center py-6">
+                            Enter a prompt above to generate your first DevOps command.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Command Category Cheat Sheet -->
+                <div class="mt-8">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal w-5 h-5 mr-2 text-indigo-600"><polyline points="4 17 10 17 10 17"/><line x1="12" x2="15" y1="10" y2="10"/><path d="M20 5v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/></svg>
+                        Quick Reference Categories
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-server w-6 h-6 text-indigo-600 mb-2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" x2="6" y1="6" y2="6"/><line x1="18" x2="18" y1="6" y2="6"/></svg>
+                            <h3 class="font-semibold text-gray-800">SSH & Server</h3>
+                            <p class="text-sm text-gray-500">Generate keys (`ssh-keygen`), connect (`ssh user@host`), or remote execution.</p>
+                        </div>
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-globe w-6 h-6 text-indigo-600 mb-2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                            <h3 class="font-semibold text-gray-800">Webserver Check</h3>
+                            <p class="text-sm text-gray-500">Check ports (`lsof`), health (`curl`), or service status (`systemctl`).</p>
+                        </div>
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search w-6 h-6 text-indigo-600 mb-2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            <h3 class="font-semibold text-gray-800">Grep & Logs</h3>
+                            <p class="text-sm text-gray-500">Advanced text searching, log filtering, and file manipulation.</p>
+                        </div>
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wifi w-6 h-6 text-indigo-600 mb-2"><path d="M12 20h.01"/><path d="M2 8.82a15 15 0 0 1 20 0"/><path d="M5 12.85a9 9 0 0 1 14 0"/><path d="M8.5 16.5a3 3 0 0 1 7 0"/></svg>
+                            <h3 class="font-semibold text-gray-800">Netstat & IP Config</h3>
+                            <p class="text-sm text-gray-500">View network connections, routing tables, and interface addresses.</p>
+                        </div>
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-laptop w-6 h-6 text-indigo-600 mb-2"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-4V3a1 1 0 0 0-2 0V6H8V3a1 1 0 0 0-2 0V6H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16z"/></svg>
+                            <h3 class="font-semibold text-gray-800">Mac Terminal</h3>
+                            <p class="text-sm text-gray-500">Specific MacOS commands, like brew, defaults, or network util.</p>
+                        </div>
+                        <div class="p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap w-6 h-6 text-indigo-600 mb-2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            <h3 class="font-semibold text-gray-800">General Unix</h3>
+                            <p class="text-sm text-gray-500">Permissions (`chmod`), disk usage (`du -h`), process management (`ps aux`).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Configuration and Element References
+            const apiKey = ""; // API Key is provided by the environment
+            const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=' + apiKey;
+            
+            const promptInput = document.getElementById('prompt');
+            const generateBtn = document.getElementById('generate-btn');
+            const commandOutput = document.getElementById('command-output');
+            const explanationText = document.getElementById('explanation-text');
+            const copyBtn = document.getElementById('copy-btn');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const codeIcon = document.getElementById('code-icon');
+            const errorText = document.getElementById('error-text');
+            const errorMessage = document.getElementById('error-message');
+            const commandOutputWrapper = document.getElementById('command-output-wrapper');
+            const explanationOutput = document.getElementById('explanation-output');
+            const placeholderMessage = document.getElementById('placeholder-message');
+            const userIdDisplay = document.getElementById('user-id-display');
+
+            // Set a unique User ID (Mock for this single-user HTML file)
+            userIdDisplay.textContent = 'User: ID-' + crypto.randomUUID().substring(0, 8);
+
+
+            // --- Utility Functions ---
+
+            // Exponential Backoff for API calls
+            const fetchWithRetry = async (url, options, maxRetries = 5) => {
+                let delay = 1000;
+                for (let i = 0; i < maxRetries; i++) {
+                    try {
+                        const response = await fetch(url, options);
+                        if (response.status === 429 && i < maxRetries - 1) {
+                            console.warn(`Rate limit hit. Retrying in ${delay / 1000}s...`);
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                            delay *= 2; // Exponential backoff
+                            continue;
+                        }
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response;
+                    } catch (error) {
+                        if (i === maxRetries - 1) throw error;
+                        console.error(`Fetch attempt failed: ${error.message}. Retrying...`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        delay *= 2;
+                    }
+                }
+                throw new Error('Exceeded max retries for API call.');
+            };
+
+            // Copy to Clipboard
+            const copyToClipboard = (text) => {
+                // Use navigator.clipboard.writeText if available, otherwise fallback
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        // Using alert as per instructions
+                        alert('Command copied to clipboard!'); 
+                    }).catch(err => {
+                        console.error('Could not copy text using navigator.clipboard: ', err);
+                        fallbackCopy(text);
+                    });
+                } else {
+                    fallbackCopy(text);
+                }
+            };
+
+            const fallbackCopy = (text) => {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = 'fixed'; // Avoid scrolling to bottom
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    alert('Command copied to clipboard!');
+                } catch (err) {
+                    console.error('Fallback copy failed', err);
+                    alert('Failed to copy command. Please select and copy manually.');
+                }
+                document.body.removeChild(textArea);
+            };
+
+
+            // --- Main Logic: Generate Command ---
+
+            const generateCommand = async () => {
+                const prompt = promptInput.value.trim();
+                if (!prompt) return;
+
+                // UI State: Loading
+                generateBtn.disabled = true;
+                loadingSpinner.classList.remove('hidden');
+                codeIcon.classList.add('hidden');
+                errorMessage.classList.add('hidden');
+                commandOutputWrapper.classList.add('hidden');
+                explanationOutput.classList.add('hidden');
+                placeholderMessage.classList.add('hidden');
+                commandOutput.textContent = '';
+                explanationText.textContent = '';
+                errorText.textContent = '';
+
+                const systemPrompt = `You are an expert IT/DevOps Command Generator tool. Your task is to translate a user's natural language request into a single, highly efficient command-line instruction for a Unix-like system (Linux/Mac) and provide a concise, helpful explanation. The command should be focused on one of the following areas: SSH, web server status checks (curl, lsof, netcat), file searching (grep), network statistics (netstat), IP/network configuration (ifconfig/ipconfig), or Mac Big Sur terminal utilities. Respond ONLY in a JSON object with the following structure: {"command": "...", "explanation": "..."}. DO NOT include any markdown formatting (like \`\`\` or \`\`\`json) or extra text outside the JSON object.`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: prompt }] }],
+                    systemInstruction: {
+                        parts: [{ text: systemPrompt }]
+                    },
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                "command": { "type": "STRING", "description": "The generated command-line instruction." },
+                                "explanation": { "type": "STRING", "description": "A brief explanation of what the command does and its output." }
+                            }
+                        }
+                    }
+                };
+
+                try {
+                    const response = await fetchWithRetry(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+                    const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                    if (jsonText) {
+                        const parsedJson = JSON.parse(jsonText);
+                        
+                        const command = parsedJson.command || 'Error: Command not found.';
+                        const explanation = parsedJson.explanation || 'Error: Explanation not found.';
+                        
+                        // UI State: Success
+                        commandOutput.textContent = command;
+                        explanationText.textContent = explanation;
+                        
+                        commandOutputWrapper.classList.remove('hidden');
+                        explanationOutput.classList.remove('hidden');
+
+                    } else {
+                        // UI State: Error (Malformed/Empty Response)
+                        errorText.textContent = 'AI model response was empty or malformed.';
+                        errorMessage.classList.remove('hidden');
+                    }
+
+                } catch (e) {
+                    console.error('API Error:', e);
+                    // UI State: Error (Fetch/Network Failure)
+                    errorText.textContent = `Failed to fetch command: ${e.message}`;
+                    errorMessage.classList.remove('hidden');
+                } finally {
+                    // UI State: Restore Button
+                    generateBtn.disabled = false;
+                    loadingSpinner.classList.add('hidden');
+                    codeIcon.classList.remove('hidden');
+                }
+            };
+
+
+            // --- Event Listeners ---
+            generateBtn.addEventListener('click', generateCommand);
+            
+            promptInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // Prevent form submission if input was in a form
+                    generateCommand();
+                }
+            });
+
+            copyBtn.addEventListener('click', () => {
+                copyToClipboard(commandOutput.textContent);
+            });
+        });
+    </script>
+</body>
+</html>
